@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo 'Pruebas simuladas pasadas con éxito' && exit 0"
+    "test": "echo 'Pruebas simuladas pasadas con éxito' && exit 0",
+    "build": "react-scripts build"
   },
   "repository": {
     "type": "git",
