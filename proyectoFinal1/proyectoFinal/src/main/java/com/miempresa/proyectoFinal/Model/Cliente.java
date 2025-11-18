@@ -11,7 +11,7 @@ public class Cliente {
 
     private String nombreCompleto;
     private String dni;
-    private String telefono;
+    private String celular; //Se cambio el nombre de la variable de telefono a celular.
     private String direccion;
     private String email;
 
@@ -23,10 +23,11 @@ public class Cliente {
     //  Constructores
     public Cliente() {}
 
-    public Cliente(String nombreCompleto, String dni, String telefono, String direccion, String email, Usuario registradoPor) {
+    //Cambios realizados aqui
+    public Cliente(String nombreCompleto, String dni, String celular, String direccion, String email, Usuario registradoPor) {
         this.nombreCompleto = nombreCompleto;
         this.dni = dni;
-        this.telefono = telefono;
+        this.celular = celular; //Se cambio el nombre de la variable de telefono a celular.
         this.direccion = direccion;
         this.email = email;
         this.registradoPor = registradoPor;
@@ -58,12 +59,12 @@ public class Cliente {
         this.dni = dni;
     }
 
-    public String getTelefono() {
-        return telefono;
+    public String getCelular() { //Se cambio el nombre del metodo de getTelefono a getCelular.
+        return celular;
     }
 
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
+    public void setCelular(String celular) { //Se cambio el nombre del metodo de setTelefono a setCelular.
+        this.celular = celular;
     }
 
     public String getDireccion() {
