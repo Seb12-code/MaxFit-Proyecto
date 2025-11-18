@@ -23,9 +23,11 @@
 </aside>
 
 <!-- Contenido principal -->
+
+<!--Cambios realizados -->
 <main class="flex-1 flex flex-col items-center justify-center">
-	<h1 class="text-3xl font-bold mb-2">¡Bienvenido, <span th:text="${#authentication.name}">Usuario</span>!</h1>
-	<p class="text-gray-600">Selecciona una opción del menú para comenzar.</p>
+	<h1 class="text-3xl font-bold mb-4 fs-2 text-primary">¡Bienvenido, <span th:text="${#authentication.name}">Usuario</span>!</h1><!--Se agrego cambios al mensaje de bienvenida-->
+	<p class="text-gray-600 fs-3 text-danger">Selecciona una opción del menú para comenzar.</p><!--Se agrego cambios al mensaje de seleccion-->
 </main>
 </body>
 </html>
