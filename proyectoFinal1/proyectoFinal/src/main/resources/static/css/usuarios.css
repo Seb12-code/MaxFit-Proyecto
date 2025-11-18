@@ -156,10 +156,13 @@
             box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         }
 
+        /*Cambios Realizados*/
         .btn {
-            transition: all 0.2s ease-in-out;
+            transition: all 0.5s ease-in-out; /*Se cambio de 0.3s a 0.5s*/
         }
-
+        
+        /*Cambios realizados*/
         .btn:hover {
-            transform: translateY(-1px);
+            transform: translateY(-3px); /*Se realizo el cambio de translateY(-1px) a translateY(-3px)*/
+            box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3); /*Se agrego un box shadow al btn:hover*/
         }
