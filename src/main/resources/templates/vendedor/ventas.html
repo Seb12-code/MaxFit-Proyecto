@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Ventas - Sistema de Ventas</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		@keyframes fade-in {
+			from { opacity: 0; transform: scale(0.95); }
+			to { opacity: 1; transform: scale(1); }
+		}
+		.animate-fade-in {
+			animation: fade-in 0.3s ease-out;
+		}
+	</style>
+</head>
+
+<body class="flex bg-gray-100 min-h-screen font-sans">
+
+<!-- Sidebar -->
+<aside class="w-64 bg-gray-800 text-white flex flex-col py-6 px-4">
+	<h2 class="text-xl font-bold mb-6 text-center">Sistema de Ventas</h2>
+	<nav class="space-y-2">
+		<a href="/dashboard" class="block hover:bg-gray-700 p-2 rounded">🏠 Inicio</a>
+		<a th:href="@{/clientes}" class="block hover:bg-gray-700 p-2 rounded">👥 Clientes</a>
+		<a th:href="@{/productos}" class="block hover:bg-gray-700 p-2 rounded"  sec:authorize="hasRole('ADMIN')">📦 Productos</a>
+		<a th:href="@{/ventas}" class="block hover:bg-gray-700 p-2 rounded">💰 Ventas</a>
+		<a href="/reportes" class="block hover:bg-gray-700 p-2 rounded"  sec:authorize="hasRole('ADMIN')" >📊 Reportes</a>
+		<a th:href="@{/admin/gestionUsuario/nuevo}" class="block hover:bg-gray-700 p-2 rounded" sec:authorize="hasRole('ADMIN')">🔐 Gestionar Usuarios</a>
+		<a th:href="@{/logout}" class="block text-red-400 hover:text-red-200 p-2 rounded">🚪 Cerrar Sesión</a>
+	</nav>
+</aside>
+
+
+
+<!-- Contenido principal -->
+<main class="flex-1 p-8 bg-gray-50 overflow-auto">
+	<div class="max-w-6xl mx-auto space-y-10">
+		<h2 class="text-2xl font-bold text-gray-800 mb-6">💰 Registro de Venta</h2>
+
+		<!-- FORM: Buscar Cliente -->
+		<form th:action="@{/ventas/buscarCliente}" method="post" class="space-y-4">
+			<h3 class="text-lg font-semibold text-gray-800">🧍 Datos del Cliente</h3>
+			<div class="flex items-center gap-2">
+				<input type="text" name="dni" placeholder="DNI" th:value="${cliente?.dni}" class="border px-4 py-2 rounded w-48 text-sm" required />
+				<button type="submit" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded text-sm text-white font-semibold">🔍 Buscar</button>
+			</div>
+			<div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+				<input type="text" readonly th:value="${cliente?.nombreCompleto}" placeholder="Nombre completo" class="bg-gray-100 border px-4 py-2 rounded" />
+				<input type="text" readonly th:value="${cliente?.telefono}" placeholder="Teléfono" class="bg-gray-100 border px-4 py-2 rounded" />
+				<input type="email" readonly th:value="${cliente?.email}" placeholder="Correo electrónico" class="bg-gray-100 border px-4 py-2 rounded" />
+				<input type="text" readonly th:value="${cliente?.direccion}" placeholder="Dirección" class="bg-gray-100 border px-4 py-2 rounded col-span-2" />
+			</div>
+		</form>
+
+		<!-- FORM: Buscar Producto -->
+		<form th:action="@{/ventas/buscarProducto}" method="post" class="space-y-4">
+			<h3 class="text-lg font-semibold text-gray-800">📦 Datos del Producto</h3>
+			<div class="flex items-center gap-2">
+				<input type="text" name="nombre" placeholder="Nombre del producto" class="border px-4 py-2 rounded w-64 text-sm" />
+				<button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 text-sm rounded text-white">🔍 Buscar</button>
+			</div>
+		</form>
+
+		<!-- FORMULARIO: Agregar al carrito -->
+		<form th:action="@{/ventas/agregarItem}" method="post" class="space-y-4" id="formAgregar">
+			<div class="grid grid-cols-4 gap-4">
+				<input type="hidden" name="productoId" th:value="${producto?.id}" />
+				<input type="text" readonly name="codigo" th:value="${producto?.codigo}" placeholder="ID Producto" class="bg-gray-100 border px-4 py-2 rounded" />
+				<input type="text" readonly id="precioProducto" name="precioVisible" th:value="${producto?.precio}" placeholder="Precio" class="bg-gray-100 border px-4 py-2 rounded" />
+				<input type="hidden" name="precio" th:value="${producto?.precio}" />
+				<input type="text" readonly name="stock" th:value="${producto?.stock}" placeholder="Stock" class="bg-gray-100 border px-4 py-2 rounded" />
+				<input type="number" id="cantidadInput" name="cantidad" min="1" placeholder="Cantidad" class="border px-4 py-2 rounded" required />
+				<input type="hidden" id="subtotalInput" name="subtotal" />
+			</div>
+			<div class="text-right">
+				<button type="submit" class="bg-gray-800 text-white py-2 px-6 rounded hover:bg-gray-700">
+					➕ Añadir al carrito
+				</button>
+			</div>
+		</form>
+
+		<!-- FORM: Tipo de Comprobante y Registrar -->
+		<form th:action="@{/ventas/registrar}" method="post" class="space-y-4">
+			<div class="flex items-center gap-4">
+				<div>
+					<h3 class="text-lg font-semibold text-gray-800">🧾 Tipo de Comprobante</h3>
+					<select name="tipoComprobante" class="border px-4 py-2 rounded text-sm bg-blue-100 hover:bg-blue-200" required>
+						<option value="">Seleccione</option>
+						<option value="boleta">Boleta</option>
+						<option value="factura">Factura</option>
+					</select>
+				</div>
+				<div>
+					<h3 class="text-lg font-semibold text-gray-800">👨‍💼 Seleccionar Vendedor</h3>
+					<select name="vendedorId" class="border px-4 py-2 rounded text-sm bg-green-100 hover:bg-green-200" required>
+						<option value="" disabled selected>Seleccione un vendedor</option>
+						<option th:each="v : ${vendedores}" th:value="${v.id_usuario}" th:text="${v.nombre}"></option>
+
+					</select>
+				</div>
+				<div class="mt-6 flex gap-4">
+					<button type="submit" class="bg-green-600 text-white py-2 px-6 rounded hover:bg-green-700">✅ Generar Venta</button>
+					<a href="/ventas/cancelar" class="bg-red-600 text-white py-2 px-6 rounded hover:bg-red-700">❌ Cancelar</a>
+				</div>
+			</div>
+		</form>
+
+		<!-- Detalle de Venta -->
+		<div class="bg-white p-6 rounded-lg shadow-md border">
+			<h3 class="text-lg font-bold mb-4">🛒 Detalle de la Venta</h3>
+			<table class="w-full text-sm mb-4">
+				<thead class="bg-gray-200 text-gray-800 font-bold">
+				<tr>
+					<th class="p-2 text-left">N°</th>
+					<th class="p-2 text-left">ID</th>
+					<th class="p-2 text-left">Producto</th>
+					<th class="p-2 text-left">Cantidad</th>
+					<th class="p-2 text-left">Precio</th>
+					<th class="p-2 text-left">Subtotal</th>
+				</tr>
+				</thead>
+				<tbody class="text-gray-700">
+				<tr th:each="item, iterStat : ${detalleVenta}">
+					<td class="p-2" th:text="${iterStat.count}">1</td>
+					<td class="p-2" th:text="${item.producto.codigo}">PT-N1</td>
+					<td class="p-2" th:text="${item.producto.nombre}">Polera</td>
+					<td class="p-2" th:text="${item.cantidad}">3</td>
+					<td class="p-2" th:text="${item.producto.precio}">20</td>
+					<td class="p-2" th:text="${item.subtotal}">60</td>
+				</tr>
+				</tbody>
+			</table>
+			<div class="text-right font-bold text-lg text-gray-800">
+				Total: S/ <span th:text="${total}">0.00</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- MODAL del Comprobante -->
+	<div th:if="${ventaRegistrada != null}" id="modalComprobante" class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+		<div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-3xl relative animate-fade-in">
+
+			<!-- Botón de cerrar -->
+			<a href="/ventas" class="absolute top-2 right-3 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</a>
+
+			<!-- Logo y datos de empresa -->
+			<div class="flex items-center justify-between mb-6">
+				<div class="flex items-center gap-4">
+					<img src="/img/logo MaxFit_peru.jpg" alt="Logo MaxFit Perú" class="h-12 w-12 object-contain"/>
+					<div>
+						<h2 class="text-2xl font-bold text-gray-800">MaxFit Perú</h2>
+						<p class="text-sm text-gray-600">Av. Del Ejercicio 345, Piso 2 – San Borja</p>
+						<p class="text-sm text-gray-600">Lima 41, Perú</p>
+						<p class="text-sm text-gray-600">Tel: (01) 345‑6789 • Email: contacto@maxfitperu.com</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Comprobante -->
+			<h2 class="text-xl font-bold mb-4 text-center text-gray-800">🧾 Comprobante de Venta</h2>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700 mb-4">
+				<div>
+					<p><strong>Cliente:</strong> <span th:text="${ventaRegistrada.cliente.nombreCompleto}">Juan Pérez</span></p>
+					<p><strong>DNI:</strong> <span th:text="${ventaRegistrada.cliente.dni}">12345678</span></p>
+					<p><strong>Teléfono:</strong> <span th:text="${ventaRegistrada.cliente.telefono}">987654321</span></p>
+					<p><strong>Email:</strong> <span th:text="${ventaRegistrada.cliente.email}">correo@example.com</span></p>
+					<p><strong>Dirección:</strong> <span th:text="${ventaRegistrada.cliente.direccion}">Av. Perú 123</span></p>
+				</div>
+				<div>
+					<p><strong>Tipo de Comprobante:</strong> <span th:text="${ventaRegistrada.tipoComprobante}">Boleta</span></p>
+					<p><strong>N° Comprobante:</strong> <span th:text="${ventaRegistrada.numeroComprobante}">B001-00123</span></p>
+					<p><strong>Fecha:</strong> <span th:text="${#temporals.format(ventaRegistrada.fecha, 'dd/MM/yyyy')}">08/07/2025</span></p>
+					<p><strong>Vendedor:</strong><span th:text="${ventaRegistrada.vendedor.nombre + ' - ' + ventaRegistrada.vendedor.id_usuario}"></span></p>
+
+				</div>
+			</div> <!-- ✅ Este cierre FALTABA -->
+
+			<table class="w-full text-sm my-4 border-t border-b border-gray-300">
+				<thead>
+				<tr class="bg-gray-100">
+					<th class="p-2 text-left">N°</th>
+					<th class="p-2 text-left">ID</th>
+					<th class="p-2 text-left">Producto</th>
+					<th class="p-2 text-left">Cantidad</th>
+					<th class="p-2 text-left">Precio</th>
+					<th class="p-2 text-left">Subtotal</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr th:each="item, iterStat : ${ventaRegistrada.detalles}">
+					<td class="p-2" th:text="${iterStat.count}">1</td>
+					<td class="p-2" th:text="${item.producto.codigo}">PT-N1</td>
+					<td class="p-2" th:text="${item.producto.nombre}">Polera</td>
+					<td class="p-2" th:text="${item.cantidad}">3</td>
+					<td class="p-2" th:text="${item.producto.precio}">20</td>
+					<td class="p-2" th:text="${item.subtotal}">60</td>
+				</tr>
+				</tbody>
+			</table>
+
+			<div class="text-right text-gray-800 font-medium mt-4 space-y-1">
+				<p>Subtotal: S/ <span th:text="${ventaRegistrada.subtotal}">0.00</span></p>
+				<p>IGV (18%): S/ <span th:text="${ventaRegistrada.igv}">0.00</span></p>
+				<p class="text-lg font-bold">Total: S/ <span th:text="${ventaRegistrada.total}">0.00</span></p>
+			</div>
+
+			<div class="text-center mt-6">
+				<button onclick="window.print()" class="bg-blue-800 text-white px-6 py-3 rounded hover:bg-blue-900">
+					🖨️ Guardar Comprobante (PDF)
+				</button>
+			</div>
+
+		</div>
+	</div>
+</main>
+
+<script>
+	document.getElementById('formAgregar').addEventListener('submit', function (e) {
+		const precio = parseFloat(document.getElementById('precioProducto').value);
+		const cantidad = parseInt(document.getElementById('cantidadInput').value);
+		const subtotal = precio * cantidad;
+		document.getElementById('subtotalInput').value = subtotal.toFixed(2);
+	});
+</script>
+<script src="/Js/ventas.js"></script>
+
+</body>
+</html>

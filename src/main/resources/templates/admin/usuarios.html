@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Primera Pagina Bootstrap</title>
+    <!--CDN Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/usuarios.css">
+    <!--Agregar Iconos-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+
+</head>
+<body class="d-flex">
+
+<aside class="bg-dark text-white p-4 vh-100" style="width: 250px;">
+    <h2 class="text-center fs-4 fw-bold mb-4">Sistema de Ventas</h2>
+    <nav class="nav flex-column">
+        <a th:href="@{/dashboard}" class="nav-link text-white mb-2">🏠 Inicio</a>
+        <a th:href="@{/clientes}" class="nav-link text-white mb-2">👥 Clientes</a>
+        <a th:href="@{/productos}" class="nav-link text-white mb-2">📦 Productos</a>
+        <a th:href="@{/ventas}" class="nav-link text-white mb-2">💰 Ventas</a>
+        <a th:href="@{/reportes}" class="nav-link text-white mb-2">📊 Reportes</a>
+        <a th:href="@{/admin/gestionUsuario/nuevo}" class="nav-link text-white mb-2">🔐 Usuarios</a>
+        <form th:action="@{/logout}" method="post" class="d-inline mt-3">
+            <button type="submit" class="nav-link text-danger bg-transparent border-0 p-0">🚪 Cerrar Sesión</button>
+        </form>
+    </nav>
+</aside>
+
+
+
+<div class="main-content container-fluid mt-4 mb-5 px-4">
+    <div class="row g-4">
+        <div class="col-lg-5 col-md-6">
+            <div class="form-card">
+                <div class="card-header-custom">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-plus me-2"></i>Registrar Usuario
+                    </h4>
+                </div>
+
+                <div class="p-4">
+                    <form method="post" th:action="@{/admin/gestionUsuario/guardar}" th:object="${usuario}"
+                          class="compact-form">
+                        <input type="hidden" th:field="*{id_usuario}" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="bi bi-person me-1 text-primary"></i>Username
+                                </label>
+                                <input type="text" class="form-control" id="username" th:field="*{username}"
+                                       required>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="bi bi-lock me-1 text-primary"></i>Password
+                                </label>
+                                <input type="password" class="form-control" id="password" th:field="*{password}"
+                                       required>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">
+                                <i class="bi bi-person-badge me-1 text-primary"></i>Nombre Completo
+                            </label>
+                            <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-7 mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="bi bi-envelope me-1 text-primary"></i>Correo Electrónico
+                                </label>
+                                <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            </div>
+
+                            <div class="col-md-5 mb-3">
+                                <label for="celular" class="form-label">
+                                    <i class="bi bi-phone me-1 text-primary"></i>Celular
+                                </label>
+                                <input type="text" class="form-control" id="celular" th:field="*{celular}" required>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('celular')}" th:errors="*{celular}"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="bi bi-person-gear me-1 text-primary"></i>Asignar Roles
+                            </label>
+
+                            <div class="border rounded p-3" style="background-color: #f8f9fa;">
+                                <div th:each="rol : ${listaRoles}" class="form-check">
+                                    <input class="form-check-input" type="checkbox" th:field="*{roles}"
+                                           th:value="${rol.id}" th:id="${'rol_' + rol.id}" />
+
+                                    <label class="form-check-label" th:for="${'rol_' + rol.id}">
+                                            <span th:switch="${rol.name.name()}">
+                                                <span th:case="'ROLE_ADMIN'">
+                                                    <i class="bi bi-shield-fill-check text-danger me-1"></i>Administrador
+                                                </span>
+                                                <span th:case="'ROLE_VENDEDOR'">
+                                                    <i class="bi bi-cash-stack text-success me-1"></i>Vendedor
+                                                </span>
+                                                <span th:case="*">
+                                                    <i class="bi bi-person me-1"></i>Otro
+                                                </span>
+                                            </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('roles')}"
+                                 th:errors="*{roles}"></div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="bi bi-check-circle me-2"></i>Guardar Usuario
+                            </button>
+                            <a th:href="@{/admin/gestionUsuario/nuevo}" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7 col-md-6">
+            <div class="table-card">
+                <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap">
+                    <h4 class="mb-0">
+                        <i class="bi bi-people me-2"></i>Lista de Usuarios Registrados
+                    </h4>
+                    <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+                        <small class="text-white-50">
+                            Total: <span id="totalUsuarios">0</span> usuarios
+                        </small>
+                    </div>
+                </div>
+
+                <div class="p-3 border-bottom bg-light">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-6">
+                            <div class="input-group input-group-sm">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                <input type="text" class="form-control" id="searchInput"
+                                       placeholder="Buscar por nombre, username, email o celular..."
+                                       onkeyup="filtrarTabla()">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select form-select-sm" id="filtroRol" onchange="filtrarTabla()">
+                                <option value="">Todos los roles</option>
+                                <option value="ADMIN">Administradores</option>
+                                <option value="VENDEDOR">Vendedores</option> </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select form-select-sm" id="registrosPorPagina"
+                                    onchange="cambiarRegistrosPorPagina()">
+                                <option value="5">5 por página</option>
+                                <option value="10" selected>10 por página</option>
+                                <option value="20">20 por página</option>
+                                <option value="50">50 por página</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-compact table-hover mb-0" id="tablaUsuarios">
+                        <thead class="table-header-custom text-white">
+                        <tr class="text-center">
+                            <th style="width: 8%" onclick="ordenarTabla(0)">
+                                ID <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+                            </th>
+                            <th style="width: 15%" onclick="ordenarTabla(1)">
+                                Username <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+                            </th>
+                            <th style="width: 20%" onclick="ordenarTabla(2)">
+                                Nombre <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+                            </th>
+                            <th style="width: 22%" onclick="ordenarTabla(3)">
+                                Correo <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+                            </th>
+                            <th style="width: 12%">Celular</th>
+                            <th style="width: 15%">Roles</th>
+                            <th style="width: 8%">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaUsuariosBody">
+                        <tr th:each="u : ${usuarios}" class="align-middle usuario-row">
+                            <td class="text-center fw-bold" th:text="${u.id_usuario}"></td>
+                            <td th:text="${u.username}" class="text-truncate username-cell"
+                                style="max-width: 120px;"></td>
+                            <td th:text="${u.nombre}" class="text-truncate nombre-cell"
+                                style="max-width: 150px;"></td>
+                            <td th:text="${u.email}" class="text-truncate email-cell" style="max-width: 180px;">
+                            </td>
+                            <td th:text="${u.celular}" class="celular-cell"></td>
+                            <td class="roles-cell">
+                                <div class="d-flex flex-wrap gap-1">
+                                            <span th:each="r : ${u.roles}"
+                                                  th:text="${#strings.replace(r.name, 'ROLE_', '')}"
+                                                  class="badge badge-compact role-badge"
+                                                  th:classappend="${#strings.contains(r.name, 'ADMIN')} ? 'bg-danger' :
+                                                         (${#strings.contains(r.name, 'VENDEDOR')} ? 'bg-success' : 'bg-secondary')"
+                                                  th:attr="data-role=${#strings.replace(r.name, 'ROLE_', '')}">
+                                            </span>
+                                </div>
+                            </td>
+                            <td class="text-center action-buttons">
+                                <a th:href="@{/admin/gestionUsuario/editar(id=${u.id_usuario})}"
+                                   class="btn btn-sm btn-outline-primary btn-action" title="Editar usuario"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a th:href="@{/admin/gestionUsuario/eliminar(id=${u.id_usuario})}"
+                                   class="btn btn-sm btn-outline-danger btn-action" title="Eliminar usuario"
+                                   data-bs-toggle="tooltip"
+                                   onclick="return confirm('¿Está seguro que desea eliminar este usuario?\n\nEsta acción no se puede deshacer.')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="p-3 bg-light border-top">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                Mostrando <span id="mostrandoDesde">1</span> a <span id="mostrandoHasta">10</span>
+                                de <span id="totalFiltrados">0</span> registros
+                                <span id="totalOriginal" style="display: none;"> (filtrado de <span
+                                        id="totalCompleto">0</span> registros totales)</span>
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <nav aria-label="Paginación de usuarios">
+                                <ul class="pagination pagination-sm justify-content-end mb-0" id="paginacion">
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center p-4 d-none" id="noResultados">
+                    <i class="bi bi-search display-4 text-muted"></i>
+                    <h5 class="mt-3 text-muted">No se encontraron usuarios</h5>
+                    <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+<script src="/Js/usuarios.js"></script>
+</body>
+</html>
