@@ -9,8 +9,11 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name ="nombre")
     private String nombreCompleto;
     private String dni;
+
+    @Column(name ="telefono")
     private String celular; //Se cambio el nombre de la variable de telefono a celular.
     private String direccion;
     private String email;
