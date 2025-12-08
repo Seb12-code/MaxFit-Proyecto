@@ -1,0 +1,34 @@
+// Este manual de usuario detalla todas las consideraciones para quienes quieran probar o implementar nuestro software MaxFit.
+
+// Requisitos previos para el entorno local
+1. Tener instalado Java JDK 17 o superior en su PC.
+2. Tener instalado Maven (o usar el wrapper 'mvnw' incluido).
+3. Tener instalado Docker Desktop (para la contenerización y pruebas locales).
+4. Tener instalado Git para el control de versiones.
+5. (Opcional) Tener instalado MySQL Workbench o DBeaver para gestionar la base de datos.
+
+// Configuración de Variables de Entorno (Local)
+Para ejecutar el proyecto localmente conectándose a la base de datos de producción (Railway) o local, se recomienda configurar las variables de entorno en su sistema operativo o IDE, en lugar de modificar el archivo 'application.properties':
+
+- SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/ventas (o la URL de Railway)
+- SPRING_DATASOURCE_USERNAME: root (o el usuario de Railway)
+- SPRING_DATASOURCE_PASSWORD: su_contraseña
+
+// Flujo de Trabajo en GitHub
+1. La rama principal del proyecto es 'main'. Esta rama contiene la versión estable y desplegable del software.
+2. Todo desarrollo de nuevas características (features) o corrección de errores (hotfixes) debe realizarse en ramas separadas creadas a partir de 'main'.
+3. Para integrar cambios, se debe crear un Pull Request (PR) hacia 'main'. Esto disparará automáticamente los tests de integración si están configurados.
+
+// Notas Importantes sobre CI/CD (Automatización)
+1. La última versión del software siempre será la que se encuentre en la rama 'main'.
+2. Cada vez que se haga un 'push' o se apruebe un 'pull request' en la rama 'main', se ejecutarán automáticamente los scripts de CI/CD definidos en '.github/workflows/railway.yml'.
+3. El script de despliegue se encarga de:
+   a) Compilar el proyecto con Maven.
+   b) Construir la imagen Docker.
+   c) Desplegar la nueva versión en la plataforma Railway.
+
+// Conexión a la Base de Datos en Producción (Railway)
+Es necesario que, para conectarse a la base de datos remota para tareas de mantenimiento o backup:
+1. Obtenga las credenciales (Host, Puerto, Usuario, Contraseña) desde el panel de variables de Railway.
+2. Configure su cliente SQL (Workbench/DBeaver) con dichos datos.
+3. No comparta estas credenciales en archivos públicos del repositorio.
